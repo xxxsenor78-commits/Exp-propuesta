@@ -1,0 +1,776 @@
+/* ============================================================
+   EXPEDIENTE 2026-LV-001 — ESTILO
+   ============================================================ */
+
+:root {
+  --bg: #050505;
+  --bg-soft: #0b0c10;
+  --gold: #D4AF37;
+  --gold-soft: rgba(212, 175, 55, 0.35);
+  --blue: #3AA6FF;
+  --red-seal: #7a1f1f;
+  --text: #EDEDED;
+  --text-dim: #9a9a9a;
+  --glass-bg: rgba(255, 255, 255, 0.035);
+  --glass-border: rgba(212, 175, 55, 0.18);
+
+  --font-title: 'Cinzel', serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(58, 166, 255, 0.06), transparent 60%),
+    radial-gradient(ellipse at 50% 100%, rgba(212, 175, 55, 0.05), transparent 60%),
+    var(--bg);
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+#particles-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.012) 0px,
+    rgba(255, 255, 255, 0.012) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.5;
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  box-shadow: inset 0 0 18vw rgba(0, 0, 0, 0.75);
+}
+
+#app {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 8vh 6vw;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.screen.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* ---------- Login ---------- */
+
+.login-card { padding: 44px 32px; }
+
+.login-title {
+  font-family: var(--font-title);
+  font-size: 21px;
+  font-weight: 600;
+  margin: 6px 0 12px;
+}
+
+.login-sub {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--text-dim);
+  margin-bottom: 28px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-align: left;
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.login-field label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.login-field input {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-field input:focus {
+  border-color: var(--gold-soft);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.login-pass-wrap {
+  position: relative;
+  display: flex;
+}
+
+.login-pass-wrap input {
+  flex: 1;
+  padding-right: 56px;
+}
+
+.btn-toggle-pass {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--gold);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 6px 8px;
+  opacity: 0.75;
+}
+
+.btn-toggle-pass:hover { opacity: 1; }
+
+.login-error {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.03em;
+  color: #e07a7a;
+  text-align: center;
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  transition: opacity 0.3s ease;
+}
+
+.login-error.show {
+  opacity: 1;
+  height: auto;
+  margin-top: -4px;
+}
+
+/* ---------- Typography helpers ---------- */
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.85;
+  margin-bottom: 4px;
+}
+
+.eyebrow-standalone {
+  text-align: center;
+}
+
+/* ---------- Glass card ---------- */
+
+.glass-card {
+  position: relative;
+  width: min(480px, 92vw);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  padding: 40px 32px;
+  text-align: center;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn-gold {
+  margin-top: 8px;
+  padding: 14px 36px;
+  background: transparent;
+  border: 1px solid var(--gold-soft);
+  color: var(--gold);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.35s ease;
+}
+
+.btn-gold:hover {
+  background: rgba(212, 175, 55, 0.1);
+  box-shadow: 0 0 24px rgba(212, 175, 55, 0.25);
+  border-color: var(--gold);
+}
+
+.btn-gold:active { transform: scale(0.97); }
+
+/* ============================================================
+   1. LOADING / TERMINAL
+   ============================================================ */
+
+.terminal {
+  width: min(560px, 92vw);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  background: rgba(10, 10, 10, 0.55);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+}
+
+.terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.terminal-header .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.terminal-title {
+  margin-left: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+}
+
+.terminal-body {
+  padding: 22px 20px;
+  min-height: 160px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--blue);
+}
+
+.terminal-body .log-line {
+  display: block;
+  white-space: pre-wrap;
+}
+
+.terminal-body .log-line.ok {
+  color: var(--gold);
+}
+
+.typed-cursor {
+  color: var(--gold);
+}
+
+/* ============================================================
+   2. EXPEDIENTE / CASE FILE
+   ============================================================ */
+
+.case-card { padding-top: 44px; }
+
+.case-seal {
+  position: absolute;
+  top: 16px;
+  right: -8px;
+  background: var(--red-seal);
+  color: #f2d5d5;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  padding: 5px 14px;
+  transform: rotate(6deg);
+  border-radius: 3px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  opacity: 0.92;
+}
+
+.case-number {
+  font-family: var(--font-title);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 26px;
+  color: var(--text);
+}
+
+.case-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+  margin-bottom: 30px;
+}
+
+.case-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.case-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.case-value {
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.status-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 0 8px var(--blue);
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.4; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+.nivel-value {
+  color: #e5b7b7;
+}
+
+/* ============================================================
+   3. INTRO
+   ============================================================ */
+
+.intro-card { padding: 44px 34px; }
+
+.intro-text {
+  font-size: 15px;
+  line-height: 1.85;
+  color: var(--text-dim);
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+.intro-text p {
+  margin-bottom: 16px;
+  opacity: 0;
+}
+
+/* ============================================================
+   4. EVIDENCIAS
+   ============================================================ */
+
+.evidence-progress-wrap {
+  width: min(480px, 92vw);
+}
+
+.evidence-progress-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--blue), var(--gold));
+  border-radius: 4px;
+}
+
+.evidence-card { padding: 30px 28px; }
+
+.evidence-photo-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.evidence-photo-frame img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  cursor: zoom-in;
+}
+
+.evidence-photo-frame img.hidden { display: none; }
+
+/* ---------- Lightbox (foto de evidencia ampliada) ---------- */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8vh 6vw;
+  background: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.lightbox.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: max(20px, env(safe-area-inset-top));
+  right: max(20px, env(safe-area-inset-right));
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--gold);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.evidence-photo-frame::before {
+  content: 'FOTOGRAFÍA NO DISPONIBLE';
+  position: absolute;
+  z-index: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+
+.stamp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-14deg) scale(0);
+  border: 3px solid var(--red-seal);
+  color: var(--red-seal);
+  background: rgba(5, 5, 5, 0.35);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 0.12em;
+  padding: 8px 18px;
+  border-radius: 6px;
+  opacity: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.evidence-title {
+  font-family: var(--font-title);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.evidence-story {
+  font-size: 14.5px;
+  line-height: 1.8;
+  color: var(--text-dim);
+  margin-bottom: 26px;
+  text-align: left;
+}
+
+/* ============================================================
+   5. TIMELINE
+   ============================================================ */
+
+#screen-timeline { justify-content: flex-start; overflow-y: auto; padding-top: 10vh; padding-bottom: 6vh; }
+
+.timeline {
+  position: relative;
+  width: min(480px, 92vw);
+  margin: 30px 0;
+  padding-left: 24px;
+  border-left: 1px solid var(--gold-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+}
+
+.timeline-item {
+  position: relative;
+  opacity: 0;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -29px;
+  top: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 10px var(--gold-soft);
+}
+
+.timeline-date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--blue);
+  letter-spacing: 0.1em;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.timeline-title {
+  font-family: var(--font-title);
+  font-size: 17px;
+  margin-bottom: 6px;
+}
+
+.timeline-desc {
+  font-size: 13.5px;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+/* ============================================================
+   6. ALEGATO
+   ============================================================ */
+
+.alegato-card {
+  width: min(560px, 92vw);
+  text-align: center;
+}
+
+.alegato-text {
+  margin: 26px 0 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.alegato-text p {
+  font-size: 15.5px;
+  line-height: 1.9;
+  color: var(--text);
+  opacity: 0;
+  font-weight: 300;
+}
+
+/* ============================================================
+   7. SENTENCIA
+   ============================================================ */
+
+#screen-sentencia {
+  background: #000;
+  gap: 40px;
+}
+
+.sentencia-stamp {
+  font-family: var(--font-title);
+  font-size: clamp(32px, 8vw, 56px);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--red-seal);
+  border: 3px solid var(--red-seal);
+  padding: 14px 34px;
+  border-radius: 8px;
+  opacity: 0;
+  transform: scale(0.6) rotate(-6deg);
+  text-shadow: 0 0 30px rgba(122, 31, 31, 0.5);
+}
+
+.sentencia-frases {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  width: min(560px, 92vw);
+  text-align: center;
+}
+
+.sentencia-frases p {
+  font-size: 16px;
+  line-height: 1.8;
+  font-weight: 300;
+  color: var(--text-dim);
+  opacity: 0;
+}
+
+/* ============================================================
+   8. FINAL
+   ============================================================ */
+
+.final-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: min(420px, 90vw);
+}
+
+.final-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  letter-spacing: 0.03em;
+  color: var(--text-dim);
+  opacity: 0;
+}
+
+.final-item .icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  border: 1px solid var(--glass-border);
+}
+
+.final-item.ok .icon {
+  color: var(--gold);
+  border-color: var(--gold-soft);
+}
+
+.final-item.pendiente .icon {
+  color: var(--blue);
+  border-color: rgba(58, 166, 255, 0.35);
+  animation: pulse-dot 1.6s ease-in-out infinite;
+}
+
+.final-item.pendiente {
+  color: var(--blue);
+}
+
+.final-frases {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: min(520px, 92vw);
+  text-align: center;
+  margin-top: 20px;
+}
+
+.final-frases p {
+  font-size: 17px;
+  font-weight: 300;
+  line-height: 1.8;
+  color: var(--text);
+  opacity: 0;
+}
+
+.final-frases p.emphasis {
+  font-family: var(--font-title);
+  font-size: 19px;
+  color: var(--gold);
+  letter-spacing: 0.02em;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 480px) {
+  .glass-card { padding: 32px 24px; }
+  .case-number { font-size: 19px; }
+  .terminal-body { font-size: 12px; }
+}
