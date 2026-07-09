@@ -11,6 +11,13 @@ const CONFIG = {
     clave: "Picadilly03"
   },
 
+  // ---- Música de fondo (suena de la sentencia al cierre, con fade in/out) ----
+  musica: {
+    archivo: "assets/musica-final.mp3",
+    inicioSegundos: 0, // segundo de la canción donde empieza a sonar (ajusta al coro si quieres)
+    volumen: 0.5 // 0 a 1
+  },
+
   // ---- Datos generales del caso ----
   caso: {
     numero: "2026-LV-001",

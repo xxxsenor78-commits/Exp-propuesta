@@ -74,6 +74,32 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ----------------------------------------------------------
+     MÚSICA DE CIERRE (de la sentencia al cierre, con fade in/out)
+     ---------------------------------------------------------- */
+  function startClosingMusic() {
+    const audio = document.getElementById('closing-audio');
+    if (!audio || !CONFIG.musica || !CONFIG.musica.archivo) return;
+    try {
+      audio.currentTime = CONFIG.musica.inicioSegundos || 0;
+    } catch (e) { /* aún no hay metadata cargada, arranca desde 0 */ }
+    audio.volume = 0;
+    audio.play().catch(() => { /* el navegador bloqueó el autoplay, se ignora */ });
+    const target = CONFIG.musica.volumen != null ? CONFIG.musica.volumen : 0.5;
+    gsap.to(audio, { volume: target, duration: 3.5, ease: 'power1.out' });
+  }
+
+  function stopClosingMusic(fadeSeconds) {
+    const audio = document.getElementById('closing-audio');
+    if (!audio || audio.paused) return;
+    gsap.to(audio, {
+      volume: 0,
+      duration: fadeSeconds,
+      ease: 'power1.in',
+      onComplete: () => audio.pause()
+    });
+  }
+
+  /* ----------------------------------------------------------
      PARTÍCULAS DE FONDO
      ---------------------------------------------------------- */
   (function initParticles() {
@@ -273,6 +299,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const totalEvidencias = CONFIG.evidencias.length;
   let evidenceBusy = false;
   let evidenceLoadToken = 0;
+  const continueBtn = document.getElementById('btn-continue-evidence');
+
+  // Bloquea/desbloquea "Continuar" de verdad (botón deshabilitado),
+  // no solo ignorando el click, para que no se pueda saltar a la
+  // siguiente evidencia antes de que la actual termine de aparecer.
+  function setEvidenceBusy(busy) {
+    evidenceBusy = busy;
+    continueBtn.disabled = busy;
+  }
 
   // Precarga y cachea cada foto una sola vez. Se dispara para todas las
   // evidencias desde el arranque (hay varias pantallas de por medio antes
@@ -303,6 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const stamp = document.getElementById('evidence-stamp');
     const token = ++evidenceLoadToken;
 
+    setEvidenceBusy(true);
     frame.classList.add('loading');
     img.classList.add('hidden');
     gsap.set(img, { opacity: 0 });
@@ -332,12 +368,20 @@ document.addEventListener('DOMContentLoaded', () => {
       frame.classList.remove('loading');
       if (!loadedImg) {
         img.classList.add('hidden');
+        setEvidenceBusy(false);
         return;
       }
       img.src = ev.imagen;
       img.alt = ev.titulo;
       img.classList.remove('hidden');
-      gsap.to(img, { opacity: 1, duration: 0.5, ease: 'power2.out' });
+      gsap.to(img, {
+        opacity: 1,
+        duration: 0.5,
+        ease: 'power2.out',
+        onComplete: () => {
+          if (token === evidenceLoadToken) setEvidenceBusy(false);
+        }
+      });
     });
 
     // Adelanta la descarga de la siguiente evidencia mientras se lee esta.
@@ -389,22 +433,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  document.getElementById('btn-continue-evidence').addEventListener('click', async () => {
+  continueBtn.addEventListener('click', async () => {
     if (evidenceBusy) return;
-    evidenceBusy = true;
+    setEvidenceBusy(true);
 
     await playStamp();
 
     evidenceIndex += 1;
     if (evidenceIndex < totalEvidencias) {
+      // loadEvidence mantiene el botón bloqueado y lo libera cuando
+      // la foto termina de cargar y hacer fade-in (o falla).
       loadEvidence(evidenceIndex);
-      evidenceBusy = false;
     } else {
       gsap.to('#evidence-progress-fill', { width: '100%', duration: 0.4 });
       await wait(400);
       buildTimeline();
       goTo('screen-timeline');
-      evidenceBusy = false;
+      setEvidenceBusy(false);
     }
   });
 
@@ -473,6 +518,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('sentencia-frases');
     container.innerHTML = '';
 
+    startClosingMusic();
+
     await wait(500);
     gsap.to(stamp, {
       opacity: 1,
@@ -498,7 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ----------------------------------------------------------
-     8. PANTALLA FINAL
+     8. PANTALLA FINAL: CHECKLIST
      ---------------------------------------------------------- */
   let finalStarted = false;
 
@@ -507,9 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
     finalStarted = true;
 
     const checklistEl = document.getElementById('final-checklist');
-    const frasesEl = document.getElementById('final-frases');
     checklistEl.innerHTML = '';
-    frasesEl.innerHTML = '';
 
     CONFIG.final.checklist.forEach((item) => {
       const row = document.createElement('div');
@@ -534,7 +579,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fireDiscreteConfetti();
 
-    await wait(1400);
+    await wait(1800);
+
+    goTo('screen-closing');
+    runClosing();
+  }
+
+  /* ----------------------------------------------------------
+     9. PANTALLA DE CIERRE
+     ---------------------------------------------------------- */
+  let closingStarted = false;
+
+  async function runClosing() {
+    if (closingStarted) return;
+    closingStarted = true;
+
+    const frasesEl = document.getElementById('final-frases');
+    frasesEl.innerHTML = '';
+
+    await wait(700);
 
     CONFIG.final.frases.forEach((texto, idx) => {
       const p = document.createElement('p');
@@ -545,6 +608,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const frasePs = frasesEl.querySelectorAll('p');
     for (let i = 0; i < frasePs.length; i++) {
+      if (i === frasePs.length - 1) stopClosingMusic(4);
       gsap.to(frasePs[i], { opacity: 1, y: 0, duration: 1.4, ease: 'power2.out' });
       await wait(i === frasePs.length - 1 ? 0 : 2800);
     }
