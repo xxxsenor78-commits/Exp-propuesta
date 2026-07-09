@@ -540,6 +540,17 @@ body {
   color: var(--text-dim);
 }
 
+.evidence-photo-frame.loading::before {
+  content: 'CARGANDO...';
+  color: var(--gold);
+  animation: text-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes text-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.9; }
+}
+
 .stamp {
   position: absolute;
   top: 50%;

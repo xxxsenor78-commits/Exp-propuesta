@@ -272,16 +272,40 @@ document.addEventListener('DOMContentLoaded', () => {
   let evidenceIndex = 0;
   const totalEvidencias = CONFIG.evidencias.length;
   let evidenceBusy = false;
+  let evidenceLoadToken = 0;
+
+  // Precarga y cachea cada foto una sola vez. Se dispara para todas las
+  // evidencias desde el arranque (hay varias pantallas de por medio antes
+  // de llegar a la primera evidencia, así que ese tiempo se aprovecha
+  // para descargar en segundo plano) y de nuevo por seguridad al mostrar
+  // cada evidencia, para no depender de que la precarga ya haya terminado.
+  const evidenceImageCache = {};
+
+  function preloadEvidenceImage(src) {
+    if (!src) return Promise.resolve(null);
+    if (evidenceImageCache[src]) return evidenceImageCache[src];
+    const promise = new Promise((resolve) => {
+      const im = new Image();
+      im.onload = () => resolve(im);
+      im.onerror = () => resolve(null);
+      im.src = src;
+    });
+    evidenceImageCache[src] = promise;
+    return promise;
+  }
+
+  CONFIG.evidencias.forEach((ev) => preloadEvidenceImage(ev.imagen));
 
   function loadEvidence(i) {
     const ev = CONFIG.evidencias[i];
     const img = document.getElementById('evidence-photo');
+    const frame = document.querySelector('.evidence-photo-frame');
     const stamp = document.getElementById('evidence-stamp');
+    const token = ++evidenceLoadToken;
 
-    img.classList.remove('hidden');
-    img.onerror = () => img.classList.add('hidden');
-    img.src = ev.imagen;
-    img.alt = ev.titulo;
+    frame.classList.add('loading');
+    img.classList.add('hidden');
+    gsap.set(img, { opacity: 0 });
 
     document.getElementById('evidence-title').textContent = ev.titulo;
     document.getElementById('evidence-story').textContent = ev.historia;
@@ -300,6 +324,25 @@ document.addEventListener('DOMContentLoaded', () => {
       { opacity: 0, y: 14 },
       { opacity: 1, y: 0, duration: 0.9, stagger: 0.3, delay: 0.2, ease: 'power2.out' }
     );
+
+    preloadEvidenceImage(ev.imagen).then((loadedImg) => {
+      // Si el usuario ya avanzó a otra evidencia mientras esta cargaba,
+      // no pisar lo que se está mostrando ahora.
+      if (token !== evidenceLoadToken) return;
+      frame.classList.remove('loading');
+      if (!loadedImg) {
+        img.classList.add('hidden');
+        return;
+      }
+      img.src = ev.imagen;
+      img.alt = ev.titulo;
+      img.classList.remove('hidden');
+      gsap.to(img, { opacity: 1, duration: 0.5, ease: 'power2.out' });
+    });
+
+    // Adelanta la descarga de la siguiente evidencia mientras se lee esta.
+    const next = CONFIG.evidencias[i + 1];
+    if (next) preloadEvidenceImage(next.imagen);
   }
 
   // ---- Lightbox: ver la foto de la evidencia en grande ----
@@ -546,8 +589,9 @@ document.addEventListener('DOMContentLoaded', () => {
     btnTogglePass.setAttribute('aria-label', isHidden ? 'Ocultar contraseña' : 'Mostrar contraseña');
   });
 
+  // Solo recorta espacios; las mayúsculas/minúsculas sí importan.
   function normalize(str) {
-    return str.trim().toLowerCase();
+    return str.trim();
   }
 
   loginForm.addEventListener('submit', (e) => {

@@ -6,7 +6,6 @@
 
 const CONFIG = {
 
-  // ---- Credenciales de acceso (no distinguen mayúsculas/minúsculas ni espacios) ----
   acceso: {
     usuario: "Clara001",
     clave: "Picadilly03"
@@ -16,7 +15,7 @@ const CONFIG = {
   caso: {
     numero: "2026-LV-001",
     demandante: "Boris Maurico Murillo Mejia",
-    jueza: "Clara Marcela Angarita",
+    jueza: "Clara Marcela Morantes Angarita",
     estado: "En investigación",
     nivel: "Confidencial"
   },
@@ -51,7 +50,7 @@ const CONFIG = {
     {
       titulo: "ORDEN DE ACCESO AL EXPEDIENTE",
       imagen: "assets/evidencia-4.jpg",
-      historia: "Evidencia final, que redirecciona al cierre del caso"
+      historia: "Evidencia final que da acceso al expediente digital y conduce al cierre del caso."
     }
   ],
 
@@ -83,9 +82,9 @@ const CONFIG = {
   alegato: {
     titulo: "Alegato del Demandante",
     parrafos: [
-      "Desde que llegaste a mi vida me demostraste que aún existen las primeras veces. Que el tiempo no siempre define la intensidad de lo que se siente y que, no se necesitan guiones cuando hay conexión",
-      "Admiro tu inteligencia, tu capacidad para escuchar, sonreir siempre, tu determinación",
-      "Eres la persona más especial que jamás conocí, me haces sentir muy querido, "
+      "Desde que llegaste a mi vida me demostraste que aún existen las primeras veces. Que el tiempo no siempre define la intensidad de lo que se siente y que no se necesitan guiones cuando hay conexión.",
+      "Gracias por ser y estar, por hacer que cada momento sea lleno de alegría, gracias por llenarme de paz.",
+      "Eres la persona más especial que jamás conocí, me haces sentir muy querido, comprendido y feliz. Por eso deseo seguir compartiendo mi vida contigo y construir muchos más recuerdos a tu lado."
     ]
   },
 
